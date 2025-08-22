@@ -1,11 +1,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ReviewManagementApp from './components/ReviewManagementApp';
-import AuthProvider from './contexts/AuthContext';
+import DemoAuthProvider from './contexts/DemoAuthContext';
 
 function App() {
   return (
-    <AuthProvider>
+    <DemoAuthProvider>
       <Router>
         <div className="min-h-screen bg-gray-50">
           <Routes>
@@ -14,7 +14,7 @@ function App() {
           </Routes>
         </div>
       </Router>
-    </AuthProvider>
+    </DemoAuthProvider>
   );
 }
 
