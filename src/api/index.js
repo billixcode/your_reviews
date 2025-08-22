@@ -6,6 +6,17 @@
 // Base utilities
 export { default as BaseCRUD, APIError, formatResponse, formatError } from './base.js';
 
+// Import API instances for the main API object
+import usersAPI from './users.js';
+import businessesAPI from './businesses.js';
+import reviewsAPI from './reviews.js';
+import responsesAPI from './responses.js';
+import templatesAPI from './templates.js';
+import integrationsAPI from './integrations.js';
+import subscriptionsAPI from './subscriptions.js';
+import notificationsAPI from './notifications.js';
+import analyticsAPI from './analytics.js';
+
 // =====================================================
 // USERS API
 // =====================================================
@@ -231,6 +242,7 @@ export const updateSystemSettings = async (settingsData) => {
 // COMPREHENSIVE API OBJECT
 // Export all APIs as a single object for convenience
 // =====================================================
+
 export const API = {
   // Core APIs
   users: usersAPI,

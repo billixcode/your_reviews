@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Bell, MessageSquare, Settings, BarChart3, Search, Filter, Send, AlertTriangle, CheckCircle, Clock, ExternalLink, Plus, ArrowUpRight } from 'lucide-react';
 
-// Import our Firebase APIs
-import { 
-  getBusinessReviews, 
-  getReviewStats,
-  createResponse,
-  getBusinessesByUser 
-} from '../api/index.js';
+// Import our Firebase APIs directly
+import { getBusinessReviews, getReviewStats } from '../api/reviews.js';
+import { createResponse } from '../api/responses.js';
+import { getBusinessesByUser } from '../api/businesses.js';
 
 const ReviewManagementApp = () => {
   // State management
