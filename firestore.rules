@@ -1,0 +1,124 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user owns or is team member of business
+    function isBusinessOwnerOrTeamMember(businessId) {
+      return request.auth != null && (
+        get(/databases/$(database)/documents/businesses/$(businessId)).data.userId == request.auth.uid ||
+        exists(/databases/$(database)/documents/businesses/$(businessId)/team_members/$(request.auth.uid))
+      );
+    }
+
+    // Users can read and write their own user document
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // User sessions subcollection
+      match /sessions/{sessionId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Business documents - owner and team members can access
+    match /businesses/{businessId} {
+      allow read, write: if request.auth != null && (
+        resource.data.userId == request.auth.uid ||
+        exists(/databases/$(database)/documents/businesses/$(businessId)/team_members/$(request.auth.uid))
+      );
+      
+      // Team members subcollection
+      match /team_members/{memberId} {
+        allow read: if isBusinessOwnerOrTeamMember(businessId);
+        allow write: if request.auth != null && 
+          get(/databases/$(database)/documents/businesses/$(businessId)).data.userId == request.auth.uid;
+      }
+    }
+
+    // Reviews collection - business owners/team can read, only backend writes
+    match /reviews/{reviewId} {
+      allow read: if isBusinessOwnerOrTeamMember(resource.data.businessId);
+      allow write: if false; // Only backend services write reviews
+      
+      // Review media subcollection
+      match /media/{mediaId} {
+        allow read: if isBusinessOwnerOrTeamMember(get(/databases/$(database)/documents/reviews/$(reviewId)).data.businessId);
+        allow write: if false;
+      }
+    }
+
+    // Review responses - business owners/team can create and edit
+    match /review_responses/{responseId} {
+      allow read, write: if isBusinessOwnerOrTeamMember(resource.data.businessId);
+    }
+
+    // Response templates - business owners/team can manage
+    match /response_templates/{templateId} {
+      allow read, write: if isBusinessOwnerOrTeamMember(resource.data.businessId);
+    }
+
+    // Platform integrations - business owners only
+    match /platform_integrations/{integrationId} {
+      allow read, write: if request.auth != null && 
+        get(/databases/$(database)/documents/businesses/$(resource.data.businessId)).data.userId == request.auth.uid;
+      
+      // Sync logs subcollection
+      match /sync_logs/{logId} {
+        allow read: if request.auth != null && 
+          get(/databases/$(database)/documents/businesses/$(get(/databases/$(database)/documents/platform_integrations/$(integrationId)).data.businessId)).data.userId == request.auth.uid;
+        allow write: if false; // Only backend writes sync logs
+      }
+    }
+
+    // Alert settings - business owners/team can manage
+    match /alert_settings/{businessId} {
+      allow read, write: if isBusinessOwnerOrTeamMember(businessId);
+    }
+
+    // Notifications - users can read their own notifications
+    match /notifications/{notificationId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow write: if false; // Only backend creates notifications
+    }
+
+    // User subscriptions - users can read their own subscription
+    match /user_subscriptions/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Billing history subcollection
+      match /billing_history/{billingId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if false; // Only backend writes billing history
+      }
+    }
+
+    // Subscription plans - public read access
+    match /subscription_plans/{planId} {
+      allow read: if true;
+      allow write: if false; // Only admin can modify
+    }
+
+    // Analytics collections - business owners/team can read
+    match /daily_stats/{statsId} {
+      allow read: if isBusinessOwnerOrTeamMember(resource.data.businessId);
+      allow write: if false; // Only backend writes stats
+    }
+
+    match /monthly_stats/{statsId} {
+      allow read: if isBusinessOwnerOrTeamMember(resource.data.businessId);
+      allow write: if false; // Only backend writes stats
+    }
+
+    // API usage - users can read their own usage
+    match /api_usage/{usageId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow write: if false; // Only backend writes usage data
+    }
+
+    // System settings - read-only for authenticated users
+    match /system_settings/{settingId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Only admin can modify
+    }
+  }
+}

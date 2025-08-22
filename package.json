@@ -1,0 +1,23 @@
+{
+  "name": "your-reviews",
+  "version": "1.0.0",
+  "description": "A review application built with Firebase",
+  "main": "index.js",
+  "scripts": {
+    "dev": "firebase serve",
+    "deploy": "firebase deploy",
+    "init-db": "node src/initialize-database.js",
+    "build": "echo 'Build script placeholder'",
+    "test": "echo 'Test script placeholder'"
+  },
+  "keywords": [
+    "firebase",
+    "reviews",
+    "web-app"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "firebase": "^12.1.0"
+  }
+}
