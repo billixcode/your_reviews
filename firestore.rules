@@ -2,11 +2,11 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // TEMPORARY: Allow read access for demo purposes
+    // TEMPORARY: Allow read/write access for demo purposes and mock data creation
     // TODO: Re-enable authentication requirements after testing
     match /{document=**} {
       allow read: if true;
-      allow write: if false; // Keep writes restricted for safety
+      allow write: if true; // Temporarily allow writes for mock data creation
     }
     
     // Helper function to check if user owns or is team member of business
